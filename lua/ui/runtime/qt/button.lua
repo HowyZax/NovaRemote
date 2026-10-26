@@ -1,0 +1,3 @@
+--function Button:paintBackground(painter)
+--    super(Button).paintBackground(self, painter)
+--end

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{8A3C1E6B-4D2F-4A91-9B70-2C5E18F0A1D4}</ProjectGuid>
+    <RootNamespace>wxui</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>NovaTouch</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Configuration)\</IntDir>
+    <IncludePath>$(HT_LIBS_DIR)\wx\include;$(HT_LIBS_DIR)\wx\include\msvc;e:\libs\wx\include;e:\libs\wx\include\msvc;$(IncludePath)</IncludePath>
+    <LibraryPath>$(HT_LIBS_DIR)\wx\lib\vc_dll;$(HT_LIBS_DIR)\wx\lib\vc14x_dll;e:\libs\wx\lib\vc_dll;e:\libs\wx\lib\vc14x_dll;$(LibraryPath)</LibraryPath>
+    <LocalDebuggerEnvironment>PATH=$(HT_LIBS_DIR)\wx\lib\vc_dll;$(HT_LIBS_DIR)\wx\lib\vc14x_dll;e:\libs\wx\lib\vc_dll;e:\libs\wx\lib\vc14x_dll;%PATH%</LocalDebuggerEnvironment>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Configuration)\</IntDir>
+    <IncludePath>$(HT_LIBS_DIR)\wx\include;$(HT_LIBS_DIR)\wx\include\msvc;e:\libs\wx\include;e:\libs\wx\include\msvc;$(IncludePath)</IncludePath>
+    <LibraryPath>$(HT_LIBS_DIR)\wx\lib\vc_dll;$(HT_LIBS_DIR)\wx\lib\vc14x_dll;e:\libs\wx\lib\vc_dll;e:\libs\wx\lib\vc14x_dll;$(LibraryPath)</LibraryPath>
+    <LocalDebuggerEnvironment>PATH=$(HT_LIBS_DIR)\wx\lib\vc_dll;$(HT_LIBS_DIR)\wx\lib\vc14x_dll;e:\libs\wx\lib\vc_dll;e:\libs\wx\lib\vc14x_dll;%PATH%</LocalDebuggerEnvironment>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>false</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>WXUSINGDLL;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;WIN32_LEAN_AND_MEAN;__WXMSW__;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy /y "$(HT_LIBS_DIR)\wx\lib\vc_dll\wxbase313ud_vc14x.dll" "$(OutDir)" &gt;nul 2&gt;&amp;1
+copy /y "$(HT_LIBS_DIR)\wx\lib\vc_dll\wxmsw313ud_core_vc14x.dll" "$(OutDir)" &gt;nul 2&gt;&amp;1
+copy /y "e:\libs\wx\lib\vc_dll\wxbase313ud_vc14x.dll" "$(OutDir)" &gt;nul 2&gt;&amp;1
+copy /y "e:\libs\wx\lib\vc_dll\wxmsw313ud_core_vc14x.dll" "$(OutDir)" &gt;nul 2&gt;&amp;1</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>WXUSINGDLL;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;WIN32_LEAN_AND_MEAN;__WXMSW__;_UNICODE;UNICODE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy /y "$(HT_LIBS_DIR)\wx\lib\vc14x_dll\wxbase313u_vc14x.dll" "$(OutDir)" &gt;nul 2&gt;&amp;1
+copy /y "$(HT_LIBS_DIR)\wx\lib\vc14x_dll\wxmsw313u_core_vc14x.dll" "$(OutDir)" &gt;nul 2&gt;&amp;1
+copy /y "e:\libs\wx\lib\vc14x_dll\wxbase313u_vc14x.dll" "$(OutDir)"
+copy /y "e:\libs\wx\lib\vc14x_dll\wxmsw313u_core_vc14x.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\app.cpp" />
+    <ClCompile Include="src\canvas.cpp" />
+    <ClCompile Include="src\meter.cpp" />
+    <ClCompile Include="src\pages.cpp" />
+    <ClCompile Include="src\pages_more.cpp" />
+    <ClCompile Include="src\mixpages.cpp" />
+    <ClCompile Include="src\painter.cpp" />
+    <ClCompile Include="src\protocol.cpp" />
+    <ClCompile Include="src\serial.cpp" />
+    <ClCompile Include="src\settings.cpp" />
+    <ClCompile Include="src\ui.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\canvas.h" />
+    <ClInclude Include="src\geom.h" />
+    <ClInclude Include="src\meter.h" />
+    <ClInclude Include="src\pages.h" />
+    <ClInclude Include="src\painter.h" />
+    <ClInclude Include="src\protocol.h" />
+    <ClInclude Include="src\serial.h" />
+    <ClInclude Include="src\settings.h" />
+    <ClInclude Include="src\ui.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

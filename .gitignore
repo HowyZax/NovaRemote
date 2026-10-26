@@ -1,0 +1,8 @@
+wxui/bin/
+wxui/obj/
+*.pdb
+*.user
+*.suo
+*.ilk
+*.iobj
+*.ipdb
