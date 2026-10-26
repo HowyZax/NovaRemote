@@ -6,12 +6,11 @@ NovaTouch is a Windows remote for a Zaxcom Nova recorder. The program to build i
 
 ## Build on Windows
 
-You need Visual Studio 2022 (toolset v143) and wxWidgets 3.1.3, the same tree HowyTerm uses. Headers and libraries are under `e:\libs\wx`, or under the folder in the `HT_LIBS_DIR` environment variable. The project is Win32, not x64.
+You need Visual Studio 2022 (toolset v143). wxWidgets 3.1.3 Release is already in `WX_Release_3.1.3\`, including its licence. The project is Win32, not x64. Debug still expects the private wx tree; the public build is Release.
 
 Close `NovaTouch.exe` if it is already running. Then, in PowerShell:
 
 ```powershell
-$env:HT_LIBS_DIR = "e:\libs"
 & "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe" wxui\NovaTouch.sln /p:Configuration=Release /p:Platform=Win32 /m
 ```
 
