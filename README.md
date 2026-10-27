@@ -71,6 +71,8 @@ build/NovaRemote.app/Contents/MacOS/NovaRemote --port=/dev/cu.usbserial-1420
 
 The link is 38400 baud, 8 data bits, odd parity, 1 stop bit, no flow control. The program saves the last port and reopens it next time. On a Mac the USB-serial adapter must support odd parity; FTDI and CH340 adapters work with the drivers built into macOS, Prolific adapters need the maker's driver.
 
+The Nova must have the Nova Touch option installed. An ARIA or OASIS connected to the Nova also allows the remote, for as long as that surface stays connected. Without the option and without one of those surfaces, the Nova allows a demo for about 10 minutes after it boots, then refuses the connection. The recorder status line says "Nova Refused Connection" and it pops up "Demo mode has ended."
+
 A click on a mix cell, an input control, record arm, sample rate, frame rate, preroll, tone, or a track name sends that setting to the Nova.
 
 ## Changing the program with Cursor
