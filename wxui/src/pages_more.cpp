@@ -174,7 +174,7 @@ std::unique_ptr<Page> BuildSetupPage() {
         if (id == "PreRecordSetup") CycleValue(b.get(), { "OFF", "3 sec", "6 sec", "10 sec" });
         if (id == "Mp3Rec") { b->value = "OFF"; b->showValue = true; }
         if (id == "HomeMeters") { b->value = "8"; b->showValue = true; }
-        if (id == "SerialSetup") { b->value = "38400"; b->showValue = true; }
+        if (id == "SerialSetup") { b->value = "none"; b->showValue = true; } // app.cpp sets the port
         if (id == "IsoAtt") CycleValue(b.get(), { "OFF", "3 dB", "6 dB", "10 dB" });
         cells.push_back(std::move(b));
     }

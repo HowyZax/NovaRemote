@@ -1,6 +1,7 @@
 wxui/bin/
 wxui/obj/
 build/
+build-debug/
 .vs/
 *.pdb
 *.user

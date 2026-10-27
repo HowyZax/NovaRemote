@@ -251,6 +251,23 @@ MainFrame::MainFrame()
             sendNumber("mp3record.mode", {}, settings_.num("mp3record.mode", 0) ? 0 : 1);
         };
     }
+    // Serial: like the old remote's serial.port setting, a click steps to the
+    // next port the PC has and opens it. The button shows the port in use.
+    if (auto* b = dynamic_cast<Button*>(setup_->find("SerialSetup"))) {
+        b->click = [this] {
+            auto ports = SerialPort::listPorts();
+            if (ports.empty()) {
+                wxMessageBox("No serial ports found. Plug in the Nova's USB-serial adapter.",
+                             "Serial", wxOK | wxICON_INFORMATION, this);
+                return;
+            }
+            size_t next = 0;
+            for (size_t i = 0; i < ports.size(); ++i)
+                if (ports[i] == portName_) { next = (i + 1) % ports.size(); break; }
+            if (ports[next] == portName_) return; // only one port and it is already open
+            openPort(ports[next]);
+        };
+    }
     if (auto* b = dynamic_cast<Button*>(setup_->find("HomeMeters"))) {
         b->click = [this] {
             long long v = settings_.num("home.meters.count", 8) + 1;
@@ -471,6 +488,11 @@ void MainFrame::applySettings() {
             b->value = s.num("mp3record.mode", 0) ? "Manual" : "Follow Recorder";
         if (auto* b = dynamic_cast<Button*>(setup_->find("HomeMeters")))
             b->value = std::to_string(s.num("home.meters.count", (long long)model_.meterCount));
+        if (auto* b = dynamic_cast<Button*>(setup_->find("SerialSetup"))) {
+            std::string shown = portName_.empty() ? "none" : portName_;
+            if (shown.rfind("/dev/", 0) == 0) shown = shown.substr(5); // Mac: drop the folder
+            b->value = shown;
+        }
     }
     if (auto* b = dynamic_cast<Button*>(setup_->find("PreRecordSetup"))) b->value = model_.preroll;
     if (s.has("neverclip.attenuation")) {

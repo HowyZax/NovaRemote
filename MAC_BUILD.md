@@ -32,6 +32,12 @@ cd NovaRemote
 Build:
 
 ```sh
+./buildMAC.sh run
+```
+
+That quits a running NovaRemote, builds Release, and opens the app. Options: `debug` (builds into `build-debug/`), `run`. It is the same as:
+
+```sh
 cmake -S wxui -B build -DCMAKE_BUILD_TYPE=Release -DNOVAREMOTE_FETCH_WX=ON
 cmake --build build -j
 open build/NovaRemote.app

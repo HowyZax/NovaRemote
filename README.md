@@ -14,7 +14,14 @@ Make changes in `wxui\` only. Everything under `Reference\` is there to read, no
 
 You need Visual Studio 2022 (toolset v143). wxWidgets 3.2.12 Release is already in `Reference\WX_Release_3.2.12\`, including its licence. The project is Win32, not x64.
 
-Close `NovaRemote.exe` if it is already running. Then, in PowerShell:
+The easy way, from this folder:
+
+```text
+buildPC            Release build
+buildPC run        Release build, then start it
+```
+
+It closes a running `NovaRemote.exe` first, finds MSBuild, and builds. By hand, after closing the program:
 
 ```powershell
 & "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe" wxui\NovaRemote.sln /p:Configuration=Release /p:Platform=Win32 /m
@@ -31,6 +38,12 @@ Debug needs the debug DLLs, which are not in `Reference`. Unpack the official `w
 `MAC_BUILD.md` has the full story: what was done for the Mac, what to test first, and the known gaps. The short version:
 
 You need Xcode command line tools (`xcode-select --install`) and CMake (`brew install cmake`). Then, in Terminal, from this folder:
+
+```sh
+./buildMAC.sh run
+```
+
+It quits a running NovaRemote, builds Release into `build/NovaRemote.app`, and opens it. `./buildMAC.sh debug` builds into `build-debug/`. By hand:
 
 ```sh
 cmake -S wxui -B build -DCMAKE_BUILD_TYPE=Release -DNOVAREMOTE_FETCH_WX=ON
