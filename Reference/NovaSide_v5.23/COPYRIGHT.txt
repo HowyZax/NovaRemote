@@ -1,0 +1,10 @@
+Copyright (c) Zaxcom. All rights reserved.
+
+The files in this folder are not covered by the MIT License at the root of
+this repository.
+
+They are a reference copy of Nova firmware, included so NovaRemote can be
+matched to the serial protocol. You may read them, and you may keep them
+inside a copy of the NovaRemote repository. You may not use them to build or
+modify Nova firmware, and you may not publish them on their own or under
+another license.

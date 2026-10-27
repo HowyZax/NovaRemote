@@ -5,8 +5,8 @@ NovaRemote is a Windows and macOS remote for a Zaxcom Nova recorder. The program
 Make changes in `wxui\` only. Everything under `Reference\` is there to read, not to edit:
 
 - `Reference\lua\` is the old screen and protocol scripts, kept so a page can be matched. They are not built and they are not linked into the program.
-- `Reference\NovaSide_v5.23\` is a copy of the Nova firmware files that describe the serial protocol. Those files do not build either. Changing them does not change the Nova.
-- `Reference\WX_Release_3.2.12\` is the wxWidgets library the Windows build links against: headers, the Release import libs, and the two DLLs the program needs.
+- `Reference\NovaSide_v5.23\` is a copy of the Nova firmware files that describe the serial protocol. Those files do not build either. Changing them does not change the Nova. Zaxcom keeps the copyright; see `COPYRIGHT.txt` in that folder.
+- `Reference\WX_Release_3.2.12\` is the wxWidgets library the Windows build links against: headers, the Release import libs, and the two DLLs the program needs. Its licence is `licence.txt` in that folder.
 
 `.cursor\rules\reference-readonly.mdc` tells the Cursor agent the same thing.
 
@@ -121,3 +121,14 @@ If a fast model already edited one of those files, revert the edit and run the s
 `Reference\NovaSide_v5.23\README.md` is the contract for new features: packet layout, setting ids, the two channel maps, mix flags, and the input-page units. The AI comments at the top of the wxui files above are the short version for the PC program.
 
 `Reference\lua\remote\pages` is the old screen layout. `Reference\lua\settings` and `Reference\lua\serial` are the old setting names and packet code.
+
+## License
+
+NovaRemote is MIT licensed. Copyright 2026 Zaxcom. See `LICENSE`. That covers the program in `wxui\`, the build scripts, these docs, and `Reference\lua\`.
+
+Two folders keep their own terms:
+
+- `Reference\NovaSide_v5.23\` is Zaxcom copyright, all rights reserved. Read it to match the protocol. It is not a license to build or ship Nova firmware.
+- `Reference\WX_Release_3.2.12\` is the wxWindows Library Licence. wxWidgets allows NovaRemote to be distributed under MIT.
+
+The MIT warranty line is the whole disclaimer: the program is provided as-is, and Zaxcom is not liable for what it does to a recorder.

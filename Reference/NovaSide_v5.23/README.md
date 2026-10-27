@@ -1,5 +1,7 @@
 # Nova PC interface, firmware v5.23
 
+These files are Zaxcom copyright, all rights reserved. See `COPYRIGHT.txt`. They are not under the MIT License at the repository root.
+
 Snapshot of the Nova recorder sources that define what a PC remote can do. `gSoftwareVersion` in `Version.cpp` is `"v5.23"`. These files are a reference for adding NovaTouch features. They are not a firmware project and will not build by themselves.
 
 `ZaxLan.h` in this folder matches Nova v5.23 plus the command names that QRX400 (`common/ZaxLanCmdCodes.h` and every `common_copy`) and HowyTerm (`howy_term/ZaxLanCmdCodes.h`) already agree on. Opcode values between those two trees matched. Nova still had the old unused names `cUNUrx12_9` / `cUNUrx12_a` and a single `cHT_Button` at `0xB1`. Those slots are now also named `cGNVDATA`, `cPICObytes`, and the HowyTerm block `cHT_PlaceButton` (`0xB0`) through `cHT_Cmd` (`0xB6`). `cHT_Button` is an alias of `cHT_ButtonPress` (`0xB2`). The old header had that name at `0xB1`, which is `cHT_EditButton`. Nova's handler only prints the packet, and it now matches a press. `cPICO_STATUS` (`0x81`) and `cProgramLarge` (`0x82`) were added. The commented-out `cPeaksMeters_PC*` block in Nova overlaps `0x80`–`0x85` and is not live. QRX4-SDpico's own `ZaxLan.h` was missing `cHT_DefineTable`, `cHT_UpdateTable`, and `cHT_Cmd`; those three were added there too.
