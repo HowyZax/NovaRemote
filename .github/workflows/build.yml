@@ -1,0 +1,66 @@
+# Builds NovaRemote on every push. Download the results from the run's
+# Artifacts section: NovaRemote-macOS.zip (universal .app) and NovaRemote-Windows.zip.
+name: Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  macos:
+    name: macOS (universal, static wx)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      # wxWidgets 3.2.12 is downloaded and compiled by CMake (NOVAREMOTE_FETCH_WX).
+      # Cache that compile so later runs take a minute instead of ten.
+      - name: Cache wxWidgets build
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: wx-3.2.12-static-universal-${{ runner.os }}-${{ hashFiles('wxui/CMakeLists.txt') }}
+
+      - name: Configure
+        run: >
+          cmake -S wxui -B build
+          -DCMAKE_BUILD_TYPE=Release
+          -DNOVAREMOTE_FETCH_WX=ON
+          -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
+
+      - name: Build
+        run: cmake --build build --config Release -j 4
+
+      - name: Check the bundle
+        run: |
+          ls -R build/NovaRemote.app
+          file build/NovaRemote.app/Contents/MacOS/NovaRemote
+          otool -L build/NovaRemote.app/Contents/MacOS/NovaRemote
+
+      - name: Zip the app
+        run: ditto -c -k --keepParent build/NovaRemote.app NovaRemote-macOS.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NovaRemote-macOS
+          path: NovaRemote-macOS.zip
+
+  windows:
+    name: Windows (Release, Win32)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: microsoft/setup-msbuild@v2
+
+      - name: Build
+        run: msbuild wxui\NovaRemote.sln /p:Configuration=Release /p:Platform=Win32 /m /v:m
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NovaRemote-Windows
+          path: |
+            wxui/bin/Release/NovaRemote.exe
+            wxui/bin/Release/wxbase32u_vc14x.dll
+            wxui/bin/Release/wxmsw32u_core_vc14x.dll

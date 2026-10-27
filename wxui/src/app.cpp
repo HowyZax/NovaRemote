@@ -296,9 +296,16 @@ MainFrame::MainFrame()
     showPage(home_.get());
     buildMenus();
 
+    // serial.log sits next to the exe on Windows. On macOS the exe is inside the
+    // .app bundle, which may be read-only, so use ~/Library/Application Support/NovaRemote.
+#ifdef _WIN32
     wxFileName logPath(wxStandardPaths::Get().GetExecutablePath());
+#else
+    wxFileName logPath(wxStandardPaths::Get().GetUserDataDir(), "");
+    logPath.Mkdir(wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+#endif
     logPath.SetFullName("serial.log");
-    log_ = _wfopen(logPath.GetFullPath().wc_str(), L"w");
+    log_ = wxFopen(logPath.GetFullPath(), "w");
 
     lastTick_ = fpsStamp_ = std::chrono::steady_clock::now();
     timer_.Bind(wxEVT_TIMER, &MainFrame::onTimer, this);
@@ -554,7 +561,7 @@ void MainFrame::buildMenus() {
     const int kPortBase = 4000;
     auto ports = SerialPort::listPorts();
     if (ports.empty()) {
-        auto* none = serial->Append(wxID_ANY, "(no COM ports)");
+        auto* none = serial->Append(wxID_ANY, "(no serial ports)");
         none->Enable(false);
     } else {
         for (size_t i = 0; i < ports.size(); ++i) {

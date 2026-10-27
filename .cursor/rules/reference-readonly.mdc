@@ -9,6 +9,6 @@ Everything under `Reference/` is there to read. Never edit, rename, move, or del
 
 - `Reference/NovaSide_v5.23/` is a copy of the Nova firmware. Editing it does not change the Nova. When the PC program disagrees with it, fix `wxui/src`, or tell the user the firmware differs.
 - `Reference/lua/` is the old remote. Use it to match layouts, setting names, and packet code, then write the C++ in `wxui/src`.
-- `Reference/WX_Release_3.1.3/` is the wxWidgets library the build links against. Do not patch its headers to fix a compile error; fix the code in `wxui/src` instead.
+- `Reference/WX_Release_3.2.12/` is the wxWidgets library the Windows build links against. Do not patch its headers to fix a compile error; fix the code in `wxui/src` instead.
 
 All changes go in `wxui/` (the sources in `wxui/src`, plus the project files). If a task truly needs a change under `Reference/`, stop and ask the user first.

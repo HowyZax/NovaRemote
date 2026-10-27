@@ -44,17 +44,20 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Configuration)\</IntDir>
-    <IncludePath>$(HT_LIBS_DIR)\wx\include;$(HT_LIBS_DIR)\wx\include\msvc;e:\libs\wx\include;e:\libs\wx\include\msvc;$(IncludePath)</IncludePath>
-    <LibraryPath>$(HT_LIBS_DIR)\wx\lib\vc_dll;$(HT_LIBS_DIR)\wx\lib\vc14x_dll;e:\libs\wx\lib\vc_dll;e:\libs\wx\lib\vc14x_dll;$(LibraryPath)</LibraryPath>
-    <LocalDebuggerEnvironment>PATH=$(HT_LIBS_DIR)\wx\lib\vc_dll;$(HT_LIBS_DIR)\wx\lib\vc14x_dll;e:\libs\wx\lib\vc_dll;e:\libs\wx\lib\vc14x_dll;%PATH%</LocalDebuggerEnvironment>
+    <!-- Debug links the full wxWidgets 3.2.12 install (debug DLLs are not shipped in Reference). Set WX_DIR or install to e:\libs\wx-3.2.12. -->
+    <WX_DIR Condition="'$(WX_DIR)'==''">e:\libs\wx-3.2.12</WX_DIR>
+    <IncludePath>$(WX_DIR)\include;$(WX_DIR)\include\msvc;$(IncludePath)</IncludePath>
+    <LibraryPath>$(WX_DIR)\lib\vc14x_dll;$(LibraryPath)</LibraryPath>
+    <LocalDebuggerEnvironment>PATH=$(WX_DIR)\lib\vc14x_dll;%PATH%</LocalDebuggerEnvironment>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Configuration)\</IntDir>
-    <IncludePath>$(ProjectDir)..\Reference\WX_Release_3.1.3\include;$(ProjectDir)..\Reference\WX_Release_3.1.3\include\msvc;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)..\Reference\WX_Release_3.1.3\lib\vc_dll;$(ProjectDir)..\Reference\WX_Release_3.1.3\lib\vc14x_dll;$(LibraryPath)</LibraryPath>
-    <LocalDebuggerEnvironment>PATH=$(ProjectDir)..\Reference\WX_Release_3.1.3\lib\vc14x_dll;%PATH%</LocalDebuggerEnvironment>
+    <WX_DIR>$(ProjectDir)..\Reference\WX_Release_3.2.12</WX_DIR>
+    <IncludePath>$(WX_DIR)\include;$(WX_DIR)\include\msvc;$(IncludePath)</IncludePath>
+    <LibraryPath>$(WX_DIR)\lib\vc14x_dll;$(LibraryPath)</LibraryPath>
+    <LocalDebuggerEnvironment>PATH=$(WX_DIR)\lib\vc14x_dll;%PATH%</LocalDebuggerEnvironment>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -64,7 +67,7 @@
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PreprocessorDefinitions>WXUSINGDLL;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;WIN32_LEAN_AND_MEAN;__WXMSW__;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WXUSINGDLL;wxMSVC_VERSION_ABI_COMPAT;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;WIN32_LEAN_AND_MEAN;__WXMSW__;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -72,10 +75,8 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y "$(HT_LIBS_DIR)\wx\lib\vc_dll\wxbase313ud_vc14x.dll" "$(OutDir)" &gt;nul 2&gt;&amp;1
-copy /y "$(HT_LIBS_DIR)\wx\lib\vc_dll\wxmsw313ud_core_vc14x.dll" "$(OutDir)" &gt;nul 2&gt;&amp;1
-copy /y "e:\libs\wx\lib\vc_dll\wxbase313ud_vc14x.dll" "$(OutDir)" &gt;nul 2&gt;&amp;1
-copy /y "e:\libs\wx\lib\vc_dll\wxmsw313ud_core_vc14x.dll" "$(OutDir)" &gt;nul 2&gt;&amp;1</Command>
+      <Command>copy /y "$(WX_DIR)\lib\vc14x_dll\wxbase32ud_vc14x.dll" "$(OutDir)"
+copy /y "$(WX_DIR)\lib\vc14x_dll\wxmsw32ud_core_vc14x.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -87,7 +88,7 @@ copy /y "e:\libs\wx\lib\vc_dll\wxmsw313ud_core_vc14x.dll" "$(OutDir)" &gt;nul 2&
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PreprocessorDefinitions>WXUSINGDLL;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;WIN32_LEAN_AND_MEAN;__WXMSW__;_UNICODE;UNICODE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WXUSINGDLL;wxMSVC_VERSION_ABI_COMPAT;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;WIN32_LEAN_AND_MEAN;__WXMSW__;_UNICODE;UNICODE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -96,8 +97,8 @@ copy /y "e:\libs\wx\lib\vc_dll\wxmsw313ud_core_vc14x.dll" "$(OutDir)" &gt;nul 2&
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y "$(ProjectDir)..\Reference\WX_Release_3.1.3\lib\vc14x_dll\wxbase313u_vc14x.dll" "$(OutDir)"
-copy /y "$(ProjectDir)..\Reference\WX_Release_3.1.3\lib\vc14x_dll\wxmsw313u_core_vc14x.dll" "$(OutDir)"</Command>
+      <Command>copy /y "$(WX_DIR)\lib\vc14x_dll\wxbase32u_vc14x.dll" "$(OutDir)"
+copy /y "$(WX_DIR)\lib\vc14x_dll\wxmsw32u_core_vc14x.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

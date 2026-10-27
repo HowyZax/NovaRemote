@@ -1,8 +1,11 @@
 wxui/bin/
 wxui/obj/
+build/
+.vs/
 *.pdb
 *.user
 *.suo
 *.ilk
 *.iobj
 *.ipdb
+.DS_Store

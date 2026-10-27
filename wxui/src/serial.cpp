@@ -6,11 +6,14 @@
 #include <devguid.h>
 #pragma comment(lib, "setupapi.lib")
 #else
+#include <algorithm>
+#include <cerrno>
+#include <dirent.h>
 #include <fcntl.h>
+#include <poll.h>
+#include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
-#include <dirent.h>
-#include <sys/ioctl.h>
 #endif
 
 SerialPort::SerialPort() = default;
@@ -128,18 +131,31 @@ std::string SerialPort::readAvailable() {
     return buf;
 }
 
-#else
+#else // macOS / Linux
 
+// AI: on macOS every adapter appears twice, as /dev/cu.NAME and /dev/tty.NAME.
+// Only list the cu.* ("call-out") name: opening tty.* blocks until DCD is
+// asserted, and the Nova never asserts it. Built-in Bluetooth and debug ports
+// are skipped because they are never a Nova.
 std::vector<std::string> SerialPort::listPorts() {
     std::vector<std::string> ports;
     DIR* d = opendir("/dev");
     if (!d) return ports;
     while (dirent* e = readdir(d)) {
         std::string n = e->d_name;
-        if (n.rfind("cu.", 0) == 0 || n.rfind("tty.usb", 0) == 0 || n.rfind("ttyUSB", 0) == 0)
-            ports.push_back(std::string("/dev/") + n);
+        bool ok = false;
+#ifdef __APPLE__
+        ok = n.rfind("cu.", 0) == 0
+             && n.find("Bluetooth") == std::string::npos
+             && n.rfind("cu.debug", 0) != 0
+             && n.rfind("cu.wlan", 0) != 0;
+#else
+        ok = n.rfind("ttyUSB", 0) == 0 || n.rfind("ttyACM", 0) == 0;
+#endif
+        if (ok) ports.push_back(std::string("/dev/") + n);
     }
     closedir(d);
+    std::sort(ports.begin(), ports.end());
     return ports;
 }
 
@@ -147,6 +163,9 @@ bool SerialPort::open(const std::string& name, int baud) {
     close();
     int fd = ::open(name.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
     if (fd < 0) return false;
+#ifdef TIOCEXCL
+    ioctl(fd, TIOCEXCL); // keep a second program from grabbing the port
+#endif
     termios tio{};
     if (tcgetattr(fd, &tio) != 0) {
         ::close(fd);
@@ -156,12 +175,23 @@ bool SerialPort::open(const std::string& name, int baud) {
     speed_t sp = B38400;
     if (baud == 115200) sp = B115200;
     else if (baud == 57600) sp = B57600;
+    else if (baud == 19200) sp = B19200;
     else if (baud == 9600) sp = B9600;
     cfsetispeed(&tio, sp);
     cfsetospeed(&tio, sp);
-    tio.c_cflag |= (CLOCAL | CREAD | PARENB | PARODD);
-    tio.c_cflag &= ~CRTSCTS;
-    tcsetattr(fd, TCSANOW, &tio);
+    // 8 data bits, odd parity, 1 stop bit, no flow control. Same as the Windows DCB above.
+    tio.c_cflag &= ~(CSIZE | CSTOPB | CRTSCTS);
+    tio.c_cflag |= (CS8 | PARENB | PARODD | CLOCAL | CREAD);
+    tio.c_iflag &= ~(IXON | IXOFF | IXANY | INPCK | ISTRIP);
+    tio.c_cc[VMIN] = 0;  // read() returns whatever is queued, never blocks
+    tio.c_cc[VTIME] = 0;
+    if (tcsetattr(fd, TCSANOW, &tio) != 0) {
+        ::close(fd);
+        return false;
+    }
+    tcflush(fd, TCIOFLUSH);
+    int lines = TIOCM_DTR | TIOCM_RTS; // Windows side enables DTR and RTS; do the same here
+    ioctl(fd, TIOCMBIS, &lines);
     fd_ = fd;
     name_ = name;
     return true;
@@ -179,15 +209,37 @@ bool SerialPort::isOpen() const { return fd_ >= 0; }
 
 void SerialPort::write(const std::vector<uint8_t>& bytes) {
     if (fd_ < 0 || bytes.empty()) return;
-    ::write(fd_, bytes.data(), bytes.size());
+    const uint8_t* p = bytes.data();
+    size_t left = bytes.size();
+    while (left > 0) {
+        ssize_t n = ::write(fd_, p, left);
+        if (n > 0) {
+            p += n;
+            left -= (size_t)n;
+            continue;
+        }
+        if (n < 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)) {
+            pollfd pfd{ fd_, POLLOUT, 0 };
+            if (poll(&pfd, 1, 200) > 0) continue; // wait up to 200 ms, like the Windows write timeout
+        }
+        return; // port went away or timed out; the next packet will try again
+    }
 }
 
 std::string SerialPort::readAvailable() {
     if (fd_ < 0) return {};
+    std::string out;
     char tmp[4096];
-    ssize_t n = ::read(fd_, tmp, sizeof(tmp));
-    if (n <= 0) return {};
-    return std::string(tmp, tmp + n);
+    for (;;) {
+        ssize_t n = ::read(fd_, tmp, sizeof(tmp));
+        if (n > 0) {
+            out.append(tmp, tmp + n);
+            if ((size_t)n < sizeof(tmp)) break;
+            continue;
+        }
+        break; // 0 = nothing queued; <0 with EAGAIN = same; other errors are ignored here
+    }
+    return out;
 }
 
 #endif
