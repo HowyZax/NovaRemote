@@ -31,7 +31,26 @@ jobs:
           -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
 
       - name: Build
-        run: cmake --build build --config Release -j 4
+        run: |
+          set -o pipefail
+          cmake --build build --config Release -j 4 2>&1 | tee build.log
+
+      # The full log needs a GitHub sign-in to read. The summary does not, so
+      # put the error lines there.
+      - name: Errors to job summary
+        if: failure()
+        run: |
+          echo '## macOS build errors' >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          grep -n -E -B2 -A6 'error:|Error [0-9]|\*\*\* |CMake Error' build.log | head -150 >> "$GITHUB_STEP_SUMMARY" || true
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build-log
+          path: build.log
 
       - name: Check the bundle
         run: |
