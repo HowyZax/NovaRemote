@@ -59,8 +59,9 @@ if(NOVAREMOTE_FETCH_WX)
     # Precompiled headers cannot be built for two architectures at once
     # (universal binary), so leave them off.
     set(wxBUILD_PRECOMP OFF CACHE BOOL "" FORCE)
+    # wxUSE_WXHTML_HELP must go with wxUSE_HTML (chkconf.h checks it).
     foreach(opt wxUSE_STC wxUSE_WEBVIEW wxUSE_RICHTEXT wxUSE_AUI wxUSE_PROPGRID
-                wxUSE_RIBBON wxUSE_XRC wxUSE_HTML wxUSE_MEDIACTRL wxUSE_OPENGL)
+                wxUSE_RIBBON wxUSE_XRC wxUSE_HTML wxUSE_WXHTML_HELP wxUSE_MEDIACTRL wxUSE_OPENGL)
         set(${opt} OFF CACHE BOOL "" FORCE)
     endforeach()
     FetchContent_Declare(wxWidgets
