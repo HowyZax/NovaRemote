@@ -146,7 +146,7 @@ std::unique_ptr<Page> BuildSetupPage() {
         "HomeMeters|Home|Meters",
         "",
         "SerialSetup|Serial",
-        "SearchPorts|Search|Serial Ports",
+        "SearchPorts|Search Serial Ports",
         "IsoAtt|ISO|Attenuation",
         "",
         "",
