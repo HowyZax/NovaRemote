@@ -1,3 +1,4 @@
+#include "autodetect.h"
 #include "canvas.h"
 #include "meter.h"
 #include "pages.h"
@@ -97,6 +98,8 @@ private:
     wxTimer timer_;
     SerialPort serial_;
     std::string rxBuf_;
+    AutoDetect detect_;
+    bool detecting_ = false;
     AppModel model_;
     std::unique_ptr<Panel> header_;
     std::unique_ptr<Label> statusLine_;
@@ -138,6 +141,8 @@ private:
     void sendText(const std::string& name, const nova::Index& idx, const std::string& value,
                   const nova::Index& fallbackBounds = {});
     void goOffline(const char* why);
+    void startAutoDetect();
+    void finishAutoDetect();
 
     void buildMenus();
     void wireTab(const char* id, Page* page);
@@ -251,6 +256,8 @@ MainFrame::MainFrame()
             sendNumber("mp3record.mode", {}, settings_.num("mp3record.mode", 0) ? 0 : 1);
         };
     }
+    if (auto* b = dynamic_cast<Button*>(setup_->find("AutoDetect")))
+        b->click = [this] { startAutoDetect(); };
     // Serial: like the old remote's serial.port setting, a click steps to the
     // next port the PC has and opens it. The button shows the port in use.
     if (auto* b = dynamic_cast<Button*>(setup_->find("SerialSetup"))) {
@@ -339,10 +346,12 @@ MainFrame::MainFrame()
         wxString last;
         if (wxConfig::Get()->Read("SerialPort", &last)) port = last.ToStdString();
     }
-    if (!port.empty()) openPort(port);
+    if (port == "auto") startAutoDetect();
+    else if (!port.empty()) openPort(port);
 
     Bind(wxEVT_CLOSE_WINDOW, [this](wxCloseEvent& e) {
         timer_.Stop();
+        detect_.cancel();
         serial_.close();
         if (log_) {
             std::fclose(log_);
@@ -394,6 +403,58 @@ void MainFrame::goOffline(const char* why) {
     model_.status = "Offline";
     model_.transport = "stop";
     commsTimeout_ = 0;
+}
+
+// Probe every port at once; onTimer calls finishAutoDetect when all have answered.
+void MainFrame::startAutoDetect() {
+    if (detecting_) return;
+    auto ports = SerialPort::listPorts();
+    if (ports.empty()) {
+        wxMessageBox("No serial ports found. Plug in the Nova's USB-serial adapter.",
+                     "Auto detect", wxOK | wxICON_INFORMATION, this);
+        return;
+    }
+    // The port in use must be released so its probe thread can open it.
+    if (serial_.isOpen()) {
+        serial_.close();
+        goOffline("auto detect");
+        portName_.clear();
+    }
+    std::string listed;
+    for (const auto& p : ports) listed += (listed.empty() ? "" : ", ") + p;
+    logLine("Auto detect: probing " + listed);
+    auto probe = proto::pack(proto::cVersion,
+                             std::string("PCnovaT-") + kAppVersion + "#" + nova::kProtocolVersion);
+    detect_.start(ports, probe, 2.5f);
+    detecting_ = true;
+    model_.status = "Searching for Nova...";
+    refreshUi();
+}
+
+void MainFrame::finishAutoDetect() {
+    std::vector<AutoDetect::Result> results;
+    bool allDone = detect_.poll(&results);
+    std::string winner, report;
+    for (const auto& r : results)
+        if (r.found && winner.empty()) winner = r.port;
+    if (!allDone && winner.empty()) return;
+    if (!allDone) detect_.cancel(); // one port answered; stop waiting on the rest
+    detecting_ = false;
+    for (const auto& r : results) {
+        std::string note = r.note == "searching" ? "skipped" : r.note;
+        logLine("Auto detect: " + r.port + " - " + note);
+        report += r.port + ": " + note + "\n";
+    }
+    if (!winner.empty()) {
+        openPort(winner);
+        return;
+    }
+    model_.status = "Offline";
+    refreshUi();
+    wxMessageBox("No Nova answered on " + std::to_string(results.size()) +
+                 (results.size() == 1 ? " port:\n\n" : " ports:\n\n") + report +
+                 "\nCheck the cable and that the Nova is on.",
+                 "Auto detect", wxOK | wxICON_INFORMATION, this);
 }
 
 void MainFrame::sendNumber(const std::string& name, const nova::Index& idx, long long value,
@@ -491,8 +552,10 @@ void MainFrame::applySettings() {
         if (auto* b = dynamic_cast<Button*>(setup_->find("SerialSetup"))) {
             std::string shown = portName_.empty() ? "none" : portName_;
             if (shown.rfind("/dev/", 0) == 0) shown = shown.substr(5); // Mac: drop the folder
-            b->value = shown;
+            b->value = detecting_ ? "searching..." : shown;
         }
+        if (auto* b = dynamic_cast<Button*>(setup_->find("AutoDetect")))
+            b->value = detecting_ ? "searching..." : "";
     }
     if (auto* b = dynamic_cast<Button*>(setup_->find("PreRecordSetup"))) b->value = model_.preroll;
     if (s.has("neverclip.attenuation")) {
@@ -580,6 +643,10 @@ void MainFrame::buildMenus() {
     menuBar->Append(file, "&File");
 
     auto* serial = new wxMenu();
+    int autoId = wxNewId();
+    serial->Append(autoId, "&Auto detect\tCtrl-D");
+    Bind(wxEVT_MENU, [this](wxCommandEvent&) { startAutoDetect(); }, autoId);
+    serial->AppendSeparator();
     const int kPortBase = 4000;
     auto ports = SerialPort::listPorts();
     if (ports.empty()) {
@@ -755,6 +822,7 @@ void MainFrame::onTimer(wxTimerEvent&) {
         fpsStamp_ = now;
     }
 
+    if (detecting_) finishAutoDetect();
     if (serial_.isOpen()) {
         std::string rx = serial_.readAvailable();
         if (!rx.empty()) onSerialBytes(rx);

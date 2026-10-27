@@ -103,6 +103,7 @@ copy /y "$(WX_DIR)\lib\vc14x_dll\wxmsw32u_core_vc14x.dll" "$(OutDir)"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\app.cpp" />
+    <ClCompile Include="src\autodetect.cpp" />
     <ClCompile Include="src\canvas.cpp" />
     <ClCompile Include="src\meter.cpp" />
     <ClCompile Include="src\pages.cpp" />
@@ -115,6 +116,7 @@ copy /y "$(WX_DIR)\lib\vc14x_dll\wxmsw32u_core_vc14x.dll" "$(OutDir)"</Command>
     <ClCompile Include="src\ui.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\autodetect.h" />
     <ClInclude Include="src\canvas.h" />
     <ClInclude Include="src\geom.h" />
     <ClInclude Include="src\meter.h" />

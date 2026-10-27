@@ -25,6 +25,7 @@ option(NOVAREMOTE_FETCH_WX
 
 set(NOVAREMOTE_SOURCES
     src/app.cpp
+    src/autodetect.cpp
     src/canvas.cpp
     src/meter.cpp
     src/mixpages.cpp
@@ -35,6 +36,7 @@ set(NOVAREMOTE_SOURCES
     src/serial.cpp
     src/settings.cpp
     src/ui.cpp
+    src/autodetect.h
     src/canvas.h
     src/geom.h
     src/meter.h
