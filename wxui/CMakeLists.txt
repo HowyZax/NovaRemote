@@ -56,6 +56,9 @@ if(NOVAREMOTE_FETCH_WX)
     set(wxBUILD_TESTS OFF CACHE BOOL "" FORCE)
     set(wxBUILD_DEMOS OFF CACHE BOOL "" FORCE)
     set(wxBUILD_INSTALL OFF CACHE BOOL "" FORCE)
+    # Precompiled headers cannot be built for two architectures at once
+    # (universal binary), so leave them off.
+    set(wxBUILD_PRECOMP OFF CACHE BOOL "" FORCE)
     foreach(opt wxUSE_STC wxUSE_WEBVIEW wxUSE_RICHTEXT wxUSE_AUI wxUSE_PROPGRID
                 wxUSE_RIBBON wxUSE_XRC wxUSE_HTML wxUSE_MEDIACTRL wxUSE_OPENGL)
         set(${opt} OFF CACHE BOOL "" FORCE)

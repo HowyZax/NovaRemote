@@ -44,6 +44,9 @@ jobs:
           echo '```' >> "$GITHUB_STEP_SUMMARY"
           grep -n -E -B2 -A6 'error:|Error [0-9]|\*\*\* |CMake Error' build.log | head -150 >> "$GITHUB_STEP_SUMMARY" || true
           echo '```' >> "$GITHUB_STEP_SUMMARY"
+          # Annotations show on the run page without a sign-in (10 per step).
+          grep -n -E 'error:|Error [0-9]|\*\*\* |CMake Error' build.log | head -10 | while IFS= read -r l; do echo "::error::$l"; done || true
+          tail -8 build.log | while IFS= read -r l; do echo "::warning::$l"; done || true
 
       - name: Upload build log
         if: always()
