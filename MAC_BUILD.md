@@ -58,7 +58,7 @@ build/NovaRemote.app/Contents/MacOS/NovaRemote --port=/dev/cu.usbserial-1420
 ## What to test first
 
 1. Plug in the Nova through the USB-serial adapter. `ls /dev/cu.*` should show one new `cu.usbserial-...` (FTDI) or `cu.wchusbserial...` (CH340) entry. If nothing appears, the adapter needs a driver. FTDI and CH340 use drivers built into macOS; Prolific needs the maker's download.
-2. Open the app (first time: right-click, Open, because it is not signed). Press Auto Detect on the Setup page; it probes every `/dev/cu.*` port at once and should connect by itself. If it does not, the Serial menu lists the ports; there should be one entry per adapter, not two.
+2. Open the app (first time: right-click, Open, because it is not signed). Press Search Serial Ports on the Setup page; it probes every `/dev/cu.*` port at once and should connect by itself. If it does not, the Serial menu lists the ports; there should be one entry per adapter, not two.
 3. The version handshake should finish within a second or two and the meters go live. If it stays offline, read `~/Library/Application Support/NovaRemote/serial.log`. The most likely cause is the adapter driver ignoring odd parity; the Nova never answers at 8N1.
 4. Click through the pages. Mac text is slightly wider and Retina scaling differs, so a few labels may clip. Those are cosmetic fixes in `wxui/src`.
 5. Change one safe setting, such as a track name, and confirm it lands on the Nova.

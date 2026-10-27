@@ -256,7 +256,7 @@ MainFrame::MainFrame()
             sendNumber("mp3record.mode", {}, settings_.num("mp3record.mode", 0) ? 0 : 1);
         };
     }
-    if (auto* b = dynamic_cast<Button*>(setup_->find("AutoDetect")))
+    if (auto* b = dynamic_cast<Button*>(setup_->find("SearchPorts")))
         b->click = [this] { startAutoDetect(); };
     // Serial: like the old remote's serial.port setting, a click steps to the
     // next port the PC has and opens it. The button shows the port in use.
@@ -554,8 +554,10 @@ void MainFrame::applySettings() {
             if (shown.rfind("/dev/", 0) == 0) shown = shown.substr(5); // Mac: drop the folder
             b->value = detecting_ ? "searching..." : shown;
         }
-        if (auto* b = dynamic_cast<Button*>(setup_->find("AutoDetect")))
+        if (auto* b = dynamic_cast<Button*>(setup_->find("SearchPorts"))) {
             b->value = detecting_ ? "searching..." : "";
+            b->showValue = detecting_;
+        }
     }
     if (auto* b = dynamic_cast<Button*>(setup_->find("PreRecordSetup"))) b->value = model_.preroll;
     if (s.has("neverclip.attenuation")) {
@@ -644,7 +646,7 @@ void MainFrame::buildMenus() {
 
     auto* serial = new wxMenu();
     int autoId = wxNewId();
-    serial->Append(autoId, "&Auto detect\tCtrl-D");
+    serial->Append(autoId, "&Search serial ports\tCtrl-D");
     Bind(wxEVT_MENU, [this](wxCommandEvent&) { startAutoDetect(); }, autoId);
     serial->AppendSeparator();
     const int kPortBase = 4000;

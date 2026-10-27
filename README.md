@@ -61,7 +61,7 @@ Every push runs `.github\workflows\build.yml`, which builds the Windows exe and 
 
 ## Run
 
-Plug in the Nova. Press **Auto Detect** on the Setup page (or Serial menu, Auto detect, Ctrl-D). It opens every serial port at once, sends the version string on each, and connects to the one a Nova answers on, usually within half a second. Or pick the port yourself from the Serial menu: `COM16` style on Windows, `/dev/cu.usbserial-...` on a Mac. Or start with the port on the command line:
+Plug in the Nova. Press **Search Serial Ports** on the Setup page (or Serial menu, Search serial ports, Ctrl-D). It opens every serial port at once, sends the version string on each, and connects to the one a Nova answers on, usually within half a second. Or pick the port yourself from the Serial menu: `COM16` style on Windows, `/dev/cu.usbserial-...` on a Mac. Or start with the port on the command line:
 
 ```text
 wxui\bin\Release\NovaRemote.exe --port=auto
