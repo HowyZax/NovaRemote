@@ -28,6 +28,8 @@ Debug needs the debug DLLs, which are not in `Reference`. Unpack the official `w
 
 ## Build on macOS
 
+`MAC_BUILD.md` has the full story: what was done for the Mac, what to test first, and the known gaps. The short version:
+
 You need Xcode command line tools (`xcode-select --install`) and CMake (`brew install cmake`). Then, in Terminal, from this folder:
 
 ```sh
