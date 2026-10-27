@@ -124,7 +124,7 @@ public:
 };
 
 // AI: 1-based source index. The wire value is this minus 1, matching
-// NovaSide_v5.23/PC_GUI_OFFSETS.h: analog 0, return 4, AES 6, RX 14,
+// Reference/NovaSide_v5.23/PC_GUI_OFFSETS.h: analog 0, return 4, AES 6, RX 14,
 // output 22, track 30. SetCrosspointFromPC reads those same ranges.
 // Leave out the old 4 phantom digitals. The firmware skip is a commented j += 4.
 static int SourceIndex(char kind, int num) {

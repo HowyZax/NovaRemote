@@ -2,11 +2,17 @@
 
 NovaRemote is a Windows remote for a Zaxcom Nova recorder. The program to build is the C++ project in `wxui\`. It uses wxWidgets.
 
-`lua\` is the old screen and protocol scripts, kept so a page can be matched. They are not built and they are not linked into the program. `NovaSide_v5.23\` is a copy of the Nova firmware files that describe the serial protocol. Those files do not build either.
+Make changes in `wxui\` only. Everything under `Reference\` is there to read, not to edit:
+
+- `Reference\lua\` is the old screen and protocol scripts, kept so a page can be matched. They are not built and they are not linked into the program.
+- `Reference\NovaSide_v5.23\` is a copy of the Nova firmware files that describe the serial protocol. Those files do not build either. Changing them does not change the Nova.
+- `Reference\WX_Release_3.1.3\` is the wxWidgets library the build links against.
+
+`.cursor\rules\reference-readonly.mdc` tells the Cursor agent the same thing.
 
 ## Build on Windows
 
-You need Visual Studio 2022 (toolset v143). wxWidgets 3.1.3 Release is already in `WX_Release_3.1.3\`, including its licence. The project is Win32, not x64. Debug still expects the private wx tree; the public build is Release.
+You need Visual Studio 2022 (toolset v143). wxWidgets 3.1.3 Release is already in `Reference\WX_Release_3.1.3\`, including its licence. The project is Win32, not x64. Debug still expects the private wx tree; the public build is Release.
 
 Close `NovaRemote.exe` if it is already running. Then, in PowerShell:
 
@@ -32,12 +38,12 @@ A click on a mix cell, an input control, record arm, sample rate, frame rate, pr
 
 ## Changing the program with Cursor
 
-Use Cursor. Open this folder (File, Open Folder). Use the Agent chat, the one that can edit files and run the build, rather than a chat that only answers. Before you send a task, set the model in the picker at the top of the chat. Tell the agent to read this file and `NovaSide_v5.23\README.md` before it edits.
+Use Cursor. Open this folder (File, Open Folder). Use the Agent chat, the one that can edit files and run the build, rather than a chat that only answers. Before you send a task, set the model in the picker at the top of the chat. Tell the agent to read this file and `Reference\NovaSide_v5.23\README.md` before it edits.
 
 A prompt that works:
 
 ```text
-Read README.md and NovaSide_v5.23\README.md. Then <what you want>.
+Read README.md and Reference\NovaSide_v5.23\README.md. Then <what you want>.
 Build Release Win32 when you are done. Leave the connected Nova's
 sample rate, routing, names, and input setup alone unless I asked
 you to change them.
@@ -47,7 +53,7 @@ The source files the agent must treat carefully already start with a comment mar
 
 ## Which model to pick
 
-For serial, settings, mix pages, Input Config, or anything in `NovaSide_v5.23`, pick a current large coding model:
+For serial, settings, mix pages, Input Config, or anything in `Reference\NovaSide_v5.23`, pick a current large coding model:
 
 - Claude Opus
 - Claude Sonnet
@@ -67,14 +73,14 @@ A fast model is fine for colors, spacing, labels, and comments. In Cursor that i
 - `wxui\src\app.cpp`
 - `wxui\src\mixpages.cpp`
 - `wxui\src\pages_more.cpp`
-- `NovaSide_v5.23\`
+- `Reference\NovaSide_v5.23\`
 
-Skip Auto when the picker is set to prefer a fast model and the task mentions the COM port, a setting name, a mix cell, or an input channel. A fast model will "correct" the input map, switch the port to 8N1, or trust the 2016 bounds written in `NovaSide_v5.23\protocol.h`. Those three mistakes are how this program loses the Nova.
+Skip Auto when the picker is set to prefer a fast model and the task mentions the COM port, a setting name, a mix cell, or an input channel. A fast model will "correct" the input map, switch the port to 8N1, or trust the 2016 bounds written in `Reference\NovaSide_v5.23\protocol.h`. Those three mistakes are how this program loses the Nova.
 
 If a fast model already edited one of those files, revert the edit and run the same request on Opus, Sonnet, GPT-5, or Grok 4. Asking the fast model to repair its own protocol edit makes a second wrong patch.
 
 ## What the agent should already know
 
-`NovaSide_v5.23\README.md` is the contract for new features: packet layout, setting ids, the two channel maps, mix flags, and the input-page units. The AI comments at the top of the wxui files above are the short version for the PC program.
+`Reference\NovaSide_v5.23\README.md` is the contract for new features: packet layout, setting ids, the two channel maps, mix flags, and the input-page units. The AI comments at the top of the wxui files above are the short version for the PC program.
 
-`lua\remote\pages` is the old screen layout. `lua\settings` and `lua\serial` are the old setting names and packet code.
+`Reference\lua\remote\pages` is the old screen layout. `Reference\lua\settings` and `Reference\lua\serial` are the old setting names and packet code.

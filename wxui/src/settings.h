@@ -6,7 +6,7 @@
 
 // AI: cSetting (0x55) values. Indexes in this store are 1-based. The wire index is
 // 0-based. Kind and bounds come from the last packet the Nova sent. The bounds in
-// NovaSide_v5.23/protocol.h are the 2016 generator, so trust a live dump over that
+// Reference/NovaSide_v5.23/protocol.h are the 2016 generator, so trust a live dump over that
 // file. These five are stored one higher than the wire value: trackmix.preset,
 // outputmix.preset, hpmix.preset, input.channel, input.configure.
 // Input arrays are 22 wide and packed: analog 1-4, return 5-6, AES 7-14, RX 15-22.

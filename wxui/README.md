@@ -4,7 +4,7 @@ Build, run, and AI instructions are in ../README.md. Prefer that file.
 
 First C++/wx slice of the Nova remote. No Qt, no Lua, no TCP.
 
-Release builds against wxWidgets 3.1.3 in `../WX_Release_3.1.3`.
+Release builds against wxWidgets 3.1.3 in `../Reference/WX_Release_3.1.3`.
 
 ## Build
 

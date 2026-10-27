@@ -52,9 +52,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Configuration)\</IntDir>
-    <IncludePath>$(ProjectDir)..\WX_Release_3.1.3\include;$(ProjectDir)..\WX_Release_3.1.3\include\msvc;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)..\WX_Release_3.1.3\lib\vc_dll;$(ProjectDir)..\WX_Release_3.1.3\lib\vc14x_dll;$(LibraryPath)</LibraryPath>
-    <LocalDebuggerEnvironment>PATH=$(ProjectDir)..\WX_Release_3.1.3\lib\vc14x_dll;%PATH%</LocalDebuggerEnvironment>
+    <IncludePath>$(ProjectDir)..\Reference\WX_Release_3.1.3\include;$(ProjectDir)..\Reference\WX_Release_3.1.3\include\msvc;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)..\Reference\WX_Release_3.1.3\lib\vc_dll;$(ProjectDir)..\Reference\WX_Release_3.1.3\lib\vc14x_dll;$(LibraryPath)</LibraryPath>
+    <LocalDebuggerEnvironment>PATH=$(ProjectDir)..\Reference\WX_Release_3.1.3\lib\vc14x_dll;%PATH%</LocalDebuggerEnvironment>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -96,8 +96,8 @@ copy /y "e:\libs\wx\lib\vc_dll\wxmsw313ud_core_vc14x.dll" "$(OutDir)" &gt;nul 2&
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y "$(ProjectDir)..\WX_Release_3.1.3\lib\vc14x_dll\wxbase313u_vc14x.dll" "$(OutDir)"
-copy /y "$(ProjectDir)..\WX_Release_3.1.3\lib\vc14x_dll\wxmsw313u_core_vc14x.dll" "$(OutDir)"</Command>
+      <Command>copy /y "$(ProjectDir)..\Reference\WX_Release_3.1.3\lib\vc14x_dll\wxbase313u_vc14x.dll" "$(OutDir)"
+copy /y "$(ProjectDir)..\Reference\WX_Release_3.1.3\lib\vc14x_dll\wxmsw313u_core_vc14x.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
