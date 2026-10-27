@@ -1,6 +1,6 @@
-# NovaTouch
+# NovaRemote
 
-NovaTouch is a Windows remote for a Zaxcom Nova recorder. The program to build is the C++ project in `wxui\`. It uses wxWidgets.
+NovaRemote is a Windows remote for a Zaxcom Nova recorder. The program to build is the C++ project in `wxui\`. It uses wxWidgets.
 
 `lua\` is the old screen and protocol scripts, kept so a page can be matched. They are not built and they are not linked into the program. `NovaSide_v5.23\` is a copy of the Nova firmware files that describe the serial protocol. Those files do not build either.
 
@@ -8,22 +8,22 @@ NovaTouch is a Windows remote for a Zaxcom Nova recorder. The program to build i
 
 You need Visual Studio 2022 (toolset v143). wxWidgets 3.1.3 Release is already in `WX_Release_3.1.3\`, including its licence. The project is Win32, not x64. Debug still expects the private wx tree; the public build is Release.
 
-Close `NovaTouch.exe` if it is already running. Then, in PowerShell:
+Close `NovaRemote.exe` if it is already running. Then, in PowerShell:
 
 ```powershell
-& "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe" wxui\NovaTouch.sln /p:Configuration=Release /p:Platform=Win32 /m
+& "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe" wxui\NovaRemote.sln /p:Configuration=Release /p:Platform=Win32 /m
 ```
 
-The program is `wxui\bin\Release\NovaTouch.exe`. The build copies `wxbase313u_vc14x.dll` and `wxmsw313u_core_vc14x.dll` next to it.
+The program is `wxui\bin\Release\NovaRemote.exe`. The build copies `wxbase313u_vc14x.dll` and `wxmsw313u_core_vc14x.dll` next to it.
 
-You can also open `wxui\NovaTouch.sln` and build Release | Win32.
+You can also open `wxui\NovaRemote.sln` and build Release | Win32.
 
 ## Run
 
 Plug in the Nova. From the Serial menu, pick its COM port. Or start with the port on the command line:
 
 ```text
-wxui\bin\Release\NovaTouch.exe --port=COM16
+wxui\bin\Release\NovaRemote.exe --port=COM16
 ```
 
 The link is 38400 baud, 8 data bits, odd parity, 1 stop bit, no flow control. The program saves the last port and reopens it next time.

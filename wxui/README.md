@@ -1,4 +1,4 @@
-# NovaTouch wxWidgets host
+# NovaRemote wxWidgets host
 
 Build, run, and AI instructions are in ../README.md. Prefer that file.
 
@@ -8,13 +8,13 @@ Release builds against wxWidgets 3.1.3 in `../WX_Release_3.1.3`.
 
 ## Build
 
-Open `NovaTouch.sln` in Visual Studio and build **Release | Win32**, or:
+Open `NovaRemote.sln` in Visual Studio and build **Release | Win32**, or:
 
 ```
-msbuild wxui\NovaTouch.sln /p:Configuration=Release /p:Platform=Win32
+msbuild wxui\NovaRemote.sln /p:Configuration=Release /p:Platform=Win32
 ```
 
-Output: `wxui\bin\Release\NovaTouch.exe`
+Output: `wxui\bin\Release\NovaRemote.exe`
 
 The build copies `wxbase313u_vc14x.dll` and `wxmsw313u_core_vc14x.dll` next to the exe. Debug needs a full wx tree that this repo does not ship.
 

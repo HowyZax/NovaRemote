@@ -161,14 +161,14 @@ wxIMPLEMENT_APP(App);
 
 bool App::OnInit() {
     // wxApp::OnInit would reject --port; MainFrame reads argv itself.
-    SetAppName("NovaTouch");
+    SetAppName("NovaRemote");
     auto* frame = new MainFrame();
     frame->Show(true);
     return true;
 }
 
 MainFrame::MainFrame()
-    : wxFrame(nullptr, wxID_ANY, "NovaTouch", wxDefaultPosition, wxSize(1280, 800))
+    : wxFrame(nullptr, wxID_ANY, "NovaRemote", wxDefaultPosition, wxSize(1280, 800))
 {
     SetBackgroundColour(*wxBLACK);
     canvas_ = new Canvas(this);

@@ -15,7 +15,7 @@
     <ProjectGuid>{8A3C1E6B-4D2F-4A91-9B70-2C5E18F0A1D4}</ProjectGuid>
     <RootNamespace>wxui</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>NovaTouch</ProjectName>
+    <ProjectName>NovaRemote</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

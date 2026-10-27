@@ -33,6 +33,7 @@
 #include "Clock.h"
 #include "AudioIO.h"
 #include "MiscTools.h"
+#include "FactoryCodes.h"
 #include "MP3common.h"
 #include "debug.h" // must be last to insure assert is defined properly!!!
 //#include "AutoMixer.h"
@@ -656,8 +657,31 @@ MsgHandler(OnSettingTCGenTimecode)
             return MSG_DONE;
         case MSG_VALUE_SET:
 		    UI_Timecode_BCDtoHHMMSS(&hh, &mm, &ss, &ff, (uint32)msg->Value.Unsigned);
-			// Factory-mode entry values are checked here in the private firmware.
-			// They are omitted from this public snapshot.
+			switch(DecodeFactoryTimecode((uint32)msg->Value.Unsigned)) // entry values are private (MiscTools.cpp)
+				{
+				case FACT_ENTRY_SECRET:
+					Nomad.Settings.SecretFactoryMode=1;	// this allows us to burn the machine info struct!!
+				    PopUp("setup",1);
+				    break;
+				case FACT_ENTRY_USER1:				  // users cannot change machine info here
+					Nomad.Settings.UserFactoryMode=1; // this is a less serious factory mode for tuning VCO etc
+				    PopUp("user fact mode 1",2);
+				    break;
+				case FACT_ENTRY_USER7:
+					Nomad.Settings.UserFactoryMode=7; 
+				    PopUp("user fact mode 7",2);
+				    break;
+				case FACT_ENTRY_USER17:
+					Nomad.Settings.UserFactoryMode=17; 
+				    PopUp("user fact mode 17",2);
+				    break;
+				case FACT_ENTRY_CDS_DEBUG:
+	  				gCDS_TABLE_DEBUG=1;  // make sure we are in cal mode....
+				    PopUp("CDS CELL DEBUG",2);
+				    break;
+				default: break;
+				}
+
             TCGenerator->SetTimeCode(hh,mm,ss,ff);
             return MSG_DONE;
 
@@ -677,8 +701,30 @@ MsgHandler(OnSettingTCGenUserbits)
             return MSG_DONE;
         case MSG_VALUE_SET:
 		    TCGenerator->SetUserBits1((uint32)msg->Value.Unsigned);
-			// Serial-number and model burns that follow a factory entry are omitted
-			// from this public snapshot.
+			if(Nomad.Settings.SecretFactoryMode)
+				{
+				uint32 arg = 0;
+				switch(DecodeFactoryUserbits((uint32)msg->Value.Unsigned, &arg)) // values are private (MiscTools.cpp)
+					{
+					case FACT_UB_SERIAL:
+						{
+					    gMachineInfo.SerialNumber = arg;	
+						char str[20];
+						sprintf(str, "%06X",arg);
+						PopUp(str,1);
+					    BurnMachineInfoStruct_REQ();
+					    break;
+					    }
+					case FACT_UB_MODEL_RX4:
+						gMachineInfo.ModelNumber = MODEL_RX4;
+						BurnMachineInfoStruct_REQ();
+						break;
+					case FACT_UB_BURN:	// just burn the struct (for saving CDScal[])
+					    BurnMachineInfoStruct_REQ();
+						break;
+					default: break;
+					}
+			    }
             return MSG_DONE;
         default: break;
     }
