@@ -1,8 +1,8 @@
-﻿// AI: Input Config sends the packed PC channel, 1-22, which is the index in the
-// Nova dump. Analog and return match gChannelConfig. AES and RX do not: the
-// firmware stores those columns without ConvertPCchanToNova. Keep sending the
-// packed index. Attack, decay, threshold, ratio, and gain are the one input
-// compressor at index {1}, shared by every channel.
+﻿// AI: Input Config uses the packed PC channel, 1-22, which is the index in the
+// Nova dump. Analog and return match gChannelConfig. AES and RX do not: Nova
+// 5.18-5.23 store those writes without ConvertPCchanToNova, so the sink in
+// app.cpp sends them 10 higher on that firmware. Attack, decay, threshold,
+// ratio, and gain are the one input compressor at index {1}, shared by every channel.
 #include "pages.h"
 #include "meter.h"
 

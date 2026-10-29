@@ -120,7 +120,7 @@ If a fast model already edited one of those files, revert the edit and run the s
 
 ## What the agent should already know
 
-`Reference\NovaSide_v5.23\README.md` is the contract for new features: packet layout, setting ids, the two channel maps, mix flags, and the input-page units. The AI comments at the top of the wxui files above are the short version for the PC program.
+`Reference\NovaSide_v5.23\README.md` is the contract for new features: packet layout, setting ids, the two channel maps, mix flags, and the input-page units. The AI comments at the top of the wxui files above are the short version for the PC program. `CHANGELOG.md` lists what changed in each version and which Nova firmware each feature needs, including where Nova 5.24 differs from 5.23.
 
 `Reference\lua\remote\pages` is the old screen layout. `Reference\lua\settings` and `Reference\lua\serial` are the old setting names and packet code.
 

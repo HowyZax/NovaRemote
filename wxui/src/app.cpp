@@ -11,6 +11,7 @@
 #include <wx/textdlg.h>
 #include <wx/filename.h>
 #include <wx/stdpaths.h>
+#include <cctype>
 #include <chrono>
 #include <cmath>
 #include <cstdint>
@@ -20,12 +21,14 @@
 #include <vector>
 
 // AI: On connect, send cVersion "PCnovaT-<kAppVersion>#01.01", answer an empty
-// cVersion, then send an empty cRequest so the Nova dumps every setting. Skip
+// cVersion, then send an empty cRequest. The first version string makes the Nova
+// dump every setting. Nova 5.24 also dumps on an empty cRequest, but skips it when
+// a dump is pending or ended under 2 s ago; older firmware drops it. Skip
 // wxApp::OnInit(); its parser rejects --port, and MainFrame reads argv itself.
 // Record arm, sample rate, frame rate, preroll, mix cells, input controls, tone,
 // and track names send real settings. Change one only when the user asked to
 // change the connected recorder.
-static const char* const kAppVersion = "0.92.10";
+static const char* const kAppVersion = "0.92.11";
 static const float kCommsTimeout = 3.f;
 
 // Generator timecode with local flywheel between packets, as remote/timecode.lua.
@@ -89,6 +92,18 @@ struct TimecodeTracker {
     }
 };
 
+// Nova version reply: "<model> v5.23 sn001967". Returns 523, or 0 if not found.
+static int FirmwareHundredths(const std::string& s) {
+    for (size_t i = 0; i + 4 < s.size(); ++i) {
+        if (s[i] != 'v' || (i > 0 && s[i - 1] != ' ')) continue;
+        const char* p = s.c_str() + i + 1;
+        if (isdigit((unsigned char)p[0]) && p[1] == '.' &&
+            isdigit((unsigned char)p[2]) && isdigit((unsigned char)p[3]))
+            return (p[0] - '0') * 100 + (p[2] - '0') * 10 + (p[3] - '0');
+    }
+    return 0;
+}
+
 class MainFrame : public wxFrame {
 public:
     MainFrame();
@@ -128,6 +143,7 @@ private:
     nova::SettingStore settings_;
     TimecodeTracker generator_;
     float commsTimeout_ = 0;
+    int novaFirmware_ = 0;  // hundredths from the version reply; 0 until one arrives
     FILE* log_ = nullptr;
     uint64_t meterPackets_ = 0;
 
@@ -137,7 +153,8 @@ private:
     void handlePacket(uint8_t cmd, const std::string& data);
     void applySettings();
     void sendNumber(const std::string& name, const nova::Index& idx, long long value,
-                    int fallbackKind = 1, const nova::Index& fallbackBounds = {});
+                    int fallbackKind = 1, const nova::Index& fallbackBounds = {},
+                    const nova::Index& wireIdx = {});
     void sendText(const std::string& name, const nova::Index& idx, const std::string& value,
                   const nova::Index& fallbackBounds = {});
     void goOffline(const char* why);
@@ -217,7 +234,20 @@ MainFrame::MainFrame()
                                     name == "input.compress.thresh" || name == "input.compress.ratio")
                                wider = { 3 };
                            else if (!idx.empty()) wider = { 22 };
-                           sendNumber(name, idx, value, 1, wider);
+                           // First index is the packed input for every per-input
+                           // setting; the shared compressor values use {1}.
+                           nova::Index wire;
+                           if (!idx.empty() && idx[0] > 6 && novaFirmware_ < 524) {
+                               if (novaFirmware_ < 518) {
+                                   logLine("Not sent " + name + "[" + std::to_string(idx[0]) +
+                                           "]: AES and RX writes need Nova firmware 5.18 or later" +
+                                           (novaFirmware_ ? "" : " (version not received yet)"));
+                                   return;
+                               }
+                               wire = idx;
+                               wire[0] += 10;
+                           }
+                           sendNumber(name, idx, value, 1, wider, wire);
                        },
                        [this](const std::string& name, const nova::Index& idx) {
                            return settings_.num(name, 0, idx);
@@ -403,6 +433,7 @@ void MainFrame::goOffline(const char* why) {
     model_.status = "Offline";
     model_.transport = "stop";
     commsTimeout_ = 0;
+    novaFirmware_ = 0;
 }
 
 // Probe every port at once; onTimer calls finishAutoDetect when all have answered.
@@ -458,11 +489,16 @@ void MainFrame::finishAutoDetect() {
 }
 
 void MainFrame::sendNumber(const std::string& name, const nova::Index& idx, long long value,
-                           int fallbackKind, const nova::Index& fallbackBounds) {
+                           int fallbackKind, const nova::Index& fallbackBounds,
+                           const nova::Index& wireIdx) {
     std::string payload;
     std::string where = name;
     for (int i : idx) where += "[" + std::to_string(i) + "]";
-    if (!settings_.encodeNumber(name, idx, value, &payload, fallbackKind, fallbackBounds)) {
+    if (!wireIdx.empty() && wireIdx != idx) {
+        where += " as ";
+        for (int i : wireIdx) where += "[" + std::to_string(i) + "]";
+    }
+    if (!settings_.encodeNumber(name, idx, value, &payload, fallbackKind, fallbackBounds, wireIdx)) {
         logLine("Cannot encode " + where + " = " + std::to_string(value));
         return;
     }
@@ -614,6 +650,16 @@ void MainFrame::handlePacket(uint8_t cmd, const std::string& data) {
     case proto::cVersion:
         logLine(head + Hex(data) + (data.empty() ? " (version request)" : " '" + data + "'"));
         if (data.empty()) sendVersion();
+        else if (int fw = FirmwareHundredths(data)) {
+            if (fw != novaFirmware_) {
+                char note[96];
+                std::snprintf(note, sizeof(note), "Nova firmware %d.%02d: AES and RX writes %s", fw / 100,
+                              fw % 100, fw >= 524 ? "use the packed index" :
+                              fw >= 518 ? "add 10 for the slot" : "are not sent");
+                logLine(note);
+            }
+            novaFirmware_ = fw;
+        }
         return;
     case proto::cRequest:
         logLine(head + Hex(data) + " (setting request - not answered yet)");
@@ -705,7 +751,7 @@ void MainFrame::openNamed(const std::string& name) {
         return;
     }
     if (name == "About") {
-        wxMessageBox("Nova Touch GUI version NT0.92.10", "About", wxOK | wxICON_INFORMATION, this);
+        wxMessageBox(std::string("Nova Touch GUI version NT") + kAppVersion, "About", wxOK | wxICON_INFORMATION, this);
         return;
     }
     Page* page = nullptr;
@@ -799,8 +845,8 @@ void MainFrame::refreshUi() {
     if (statusLine_) {
         char buf[384];
         std::snprintf(buf, sizeof(buf),
-                      "V0.92.10   Update rate: %d fps, Serial Rx: %llu bytes, %llu errors, %llu packets, Serial Tx: %llu bytes%s%s",
-                      fps_,
+                      "V%s   Update rate: %d fps, Serial Rx: %llu bytes, %llu errors, %llu packets, Serial Tx: %llu bytes%s%s",
+                      kAppVersion, fps_,
                       (unsigned long long)rxBytes_,
                       (unsigned long long)rxErrors_,
                       (unsigned long long)rxPackets_,

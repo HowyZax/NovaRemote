@@ -5,7 +5,7 @@
 // A packet is 0xAA, checksum, length, source, destination, command. The checksum
 // is the low 8 bits of the sum of every byte from the length onward. PC commands
 // are below 0x6f, so the length is one byte. The port is 38400 8O1. The version
-// string is PCnovaT-0.92.10#01.01. NovaSide protocol.h still says PROTOCOL_VERSION
+// string is PCnovaT-0.92.11#01.01. NovaSide protocol.h still says PROTOCOL_VERSION
 // "00.01"; that string is stale. Add a command only when Reference/NovaSide_v5.23/ZaxLan.h
 // already defines it.
 

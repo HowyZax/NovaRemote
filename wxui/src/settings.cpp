@@ -220,7 +220,7 @@ bool SettingStore::apply(const std::string& payload, std::string* outName, std::
     return r.pos == r.n;
 }
 
-bool SettingStore::encodeHeader(const std::string& name, const Index& idx, int kind,
+bool SettingStore::encodeHeader(const std::string& name, const Index& idx, const Index& wireIdx, int kind,
                                 const Index& fallbackBounds, std::string* payload, int* usedKind) {
     const int id = SettingId(name);
     if (!id) return false;
@@ -238,6 +238,10 @@ bool SettingStore::encodeHeader(const std::string& name, const Index& idx, int k
     if (idx.size() != bounds.size()) return false;
     for (size_t i = 0; i < idx.size(); ++i)
         if (idx[i] < 1 || idx[i] > bounds[i]) return false;
+    const Index& sent = wireIdx.empty() ? idx : wireIdx;
+    if (sent.size() != idx.size()) return false;
+    for (int v : sent)
+        if (v < 1 || v > 255) return false;
 
     std::string& b = *payload;
     b.clear();
@@ -247,17 +251,18 @@ bool SettingStore::encodeHeader(const std::string& name, const Index& idx, int k
     b += (char)bounds.size();
     for (int v : bounds) b += (char)v;
     if (!bounds.empty()) {
-        b += (char)idx.size();
-        for (int v : idx) b += (char)(v - 1);
+        b += (char)sent.size();
+        for (int v : sent) b += (char)(v - 1);
     }
     *usedKind = kind;
     return true;
 }
 
 bool SettingStore::encodeNumber(const std::string& name, const Index& idx, long long value,
-                                std::string* payload, int fallbackKind, const Index& fallbackBounds) {
+                                std::string* payload, int fallbackKind, const Index& fallbackBounds,
+                                const Index& wireIdx) {
     int kind = 0;
-    if (!encodeHeader(name, idx, fallbackKind, fallbackBounds, payload, &kind)) return false;
+    if (!encodeHeader(name, idx, wireIdx, fallbackKind, fallbackBounds, payload, &kind)) return false;
     if (kind < 1 || kind > 4) return false;
     // Array elements that are zero are sent as no value at all (settings/protocol.lua).
     if (idx.empty() || value != 0) {
@@ -274,7 +279,7 @@ bool SettingStore::encodeNumber(const std::string& name, const Index& idx, long 
 bool SettingStore::encodeText(const std::string& name, const Index& idx, const std::string& value,
                               std::string* payload, const Index& fallbackBounds) {
     int kind = 0;
-    if (!encodeHeader(name, idx, 0, fallbackBounds, payload, &kind)) return false;
+    if (!encodeHeader(name, idx, {}, 0, fallbackBounds, payload, &kind)) return false;
     if (kind != 0) return false;
     if (idx.empty() || !value.empty()) {
         *payload += value;

@@ -10,7 +10,9 @@
 // file. These five are stored one higher than the wire value: trackmix.preset,
 // outputmix.preset, hpmix.preset, input.channel, input.configure.
 // Input arrays are 22 wide and packed: analog 1-4, return 5-6, AES 7-14, RX 15-22.
-// Send that packed index. Do not add 10 to skip the dummy gChannelConfig slots.
+// Store and read that packed index. Nova 5.18-5.23 store writes to AES and RX
+// without ConvertPCchanToNova, so those must go out as the gChannelConfig slot
+// (packed + 10) through wireIdx. 5.24 converts, so send the packed index.
 // Track-mix sources 23-26 are outputs. The dump advertises a source bound of 22;
 // pass a wider fallback to encodeNumber for those cells.
 // Sample rate, routing, names, and input setup on a connected Nova are live.
@@ -38,9 +40,11 @@ public:
 
     // Build a cSetting payload for one scalar (idx empty) or one array element, and
     // update the local copy. Value size and array bounds come from what the Nova sent;
-    // fallbacks are used before anything has been received.
+    // fallbacks are used before anything has been received. A non-empty wireIdx is
+    // sent instead of idx; the local copy stays at idx.
     bool encodeNumber(const std::string& name, const Index& idx, long long value,
-                      std::string* payload, int fallbackKind = 1, const Index& fallbackBounds = {});
+                      std::string* payload, int fallbackKind = 1, const Index& fallbackBounds = {},
+                      const Index& wireIdx = {});
     bool encodeText(const std::string& name, const Index& idx, const std::string& value,
                     std::string* payload, const Index& fallbackBounds = {});
 
@@ -57,7 +61,7 @@ private:
     std::map<std::string, std::map<Index, Value>> values_;
     std::map<std::string, Meta> meta_;
 
-    bool encodeHeader(const std::string& name, const Index& idx, int kind,
+    bool encodeHeader(const std::string& name, const Index& idx, const Index& wireIdx, int kind,
                       const Index& fallbackBounds, std::string* payload, int* usedKind);
 };
 
